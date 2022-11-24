@@ -4,7 +4,6 @@ import PIL
 from PIL import Image
 import os
 
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -34,7 +33,7 @@ def load_index_to_label_dict(
 
 
 def load_files(keys: list):
-    directory = "C:/Users/sdoga/Desktop/Courses/Software-Engineering/Datasets/BIRDS450/images/"
+    directory = "Datasets/BIRDS450/images/"
     files = []
     for key in keys:
         whole_path = os.path.join(directory,key)
@@ -145,7 +144,7 @@ if __name__ == '__main__':
     if file:  # if user uploaded file
         img = Image.open(file)
     else:
-        img = Image.open("C:/Users/sdoga/Desktop/Courses/Software-Engineering/Datasets/BIRDS450/images/train/AFRICAN OYSTER CATCHER/004.jpg")
+        img = Image.open("Datasets/BIRDS450/images/train/AFRICAN OYSTER CATCHER/004.jpg")
     prediction = predict(img, index_to_class_label_dict, model, k=5)
     top_prediction = prediction[0][0]
     available_images = all_image_files.get(
