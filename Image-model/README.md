@@ -39,7 +39,7 @@ A Convolutional Neural Network model was used as the model for this project. It 
 
 An interface where users can upload an image and get a prediction after the image is fed to the trained model is created using Streamlit. The website shows top five predictions together with the confidence levels of each prediction. Three other pictures of the species that has the highest confidence level and is the final prediction are also shown on the website.
 
-![](imgs/images2.jpg)
+![](imgs/app_screenshot.jpg)
 
 
 # Future direcitons
