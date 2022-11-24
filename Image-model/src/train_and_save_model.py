@@ -14,7 +14,7 @@ import pickle
 #from IPython.display import display
 #import cv2
 
-directory='C:/Users/sdoga/Desktop/Courses/Software-Engineering/Datasets/BIRDS450/images'
+directory='Datasets/BIRDS450/images'
 
 x_train = []
 x_test = []
