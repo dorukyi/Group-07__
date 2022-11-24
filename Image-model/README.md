@@ -1,62 +1,48 @@
-![Test Badge](https://github.com/Joshmantova/Eagle-Vision/actions/workflows/python-app.yml/badge.svg) 
-
-# Project Eagle Vision
-Before I go over anything else, here's a link the website hosting the app:
-
-[Eagle Vision Homepage](https://share.streamlit.io/joshmantova/eagle-vision/prod/src/Project_Eagle_Vision.py)
+[Project Homepage](https://share.streamlit.io/joshmantova/eagle-vision/prod/src/Project_Eagle_Vision.py)
 
 Technologies used: 
 * Python
-* Pytorch
+* Keras
+* PIL
 * Streamlit
-* Docker
 * AWS EC2
-* AWS Sagemaker
-* AWS S3
 
-![](imgs/Bald-Eagle.jpg)
+![](imgs/images2.jpg)
 
 # Summary
-This project involved using Deep Convolutional Neural network to create a machine learining application that could classify 250 bird species based on images. The model architecture is a [ResNet50](https://en.wikipedia.org/wiki/Residual_neural_network) that was initially trained on the [ImageNet Dataset](https://en.wikipedia.org/wiki/ImageNet). Transfer learning was utilized to fine tune the ImageNet model to learn how to classify birds. After training, the model correctly identified 97% of bird images held out from training. The trained model was then deployed in an interactive website to allow users to identify their own bird pictures.
-
-# Introduction
-My girlfriend and I love to birdwatch. She is extremely talented at identifying the species of a bird based on very few cues. Although I enjoy birdwatching just as much, I tend to think that every big bird I see is either an Eagle or a Hawk. Out here in Colorado, I'm correct a surprisingly large proportion of the time but my predictions are clearly not all that sophisticated. 
-
-I started thinking about bird identification as a supervised learning problem - there are certain visual cues that when combined, lead to a certain classification. That's when it became obvious that instead of getting better at identification myself, I could use my computer as a crutch and have it learn how to identify birds for me! With the help of a little math (okay.. a lot of math), the tables have turned; now out of myself and my girlfriend, I am the better bird classifier.
+This project involved using Deep Convolutional Neural network to create a machine learining application that could classify 400 bird species based on images. The model architecture is a CNN, (https://en.wikipedia.org/wiki/Convolutional_neural_network) that was initially trained on the [BIRDS450 Dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species). After training, the model correctly identified 77% of bird images held out from training. The trained model was then deployed in an interactive website to allow users to identify their own bird pictures.
 
 # Dataset
-The dataset used for this project was found [on Kaggle](https://www.kaggle.com/gpiosenka/100-bird-species). Someone else went through the hard work of compiling and cleaning bird images so that I didn't have to. The dataset included 250 species of birds with about 100 - 130 training images of each species. Although this class imbalance did exist in the training data, it did not substantially affect the model scores. The validation and test data each included 5 images of each species. 
+Data set of 450 bird species. 70,626 training images, 2250 test images(5 images per species) and 2250 validation images(5 images per species. This is a very high quality dataset where there is only one bird in each image and the bird typically takes up at least 50% of the pixels in the image. All images are 224 X 224 X 3 color images in jpg format. Data set includes a train set, test set and validation set. Each set contains 450 sub directories, one for each bird species. 
 
-In any given image, the bird was near the center of the image and took up at least 50% of the image. This made it great for training but not the best for use in real world inference. Having said that, each species of bird had a variety of different positions they would be in including flying, sitting, perched on trees, etc. Additionally, image augmentation was critical to a high scoring model. Although any model trained on this data would not likely be able to correctly identify a bird from very far away, it would be likely to correctly identify a bird regardless of what position the bird was in.
+Images were gather from internet searches by species name. Once the image files for a species was downloaded they were checked for duplicate images using a python duplicate image detector program I developed. All duplicate images detected were deleted in order to prevent their being images common between the training, test and validation sets. After that the images were cropped so that the bird in most cases occupies at least 50% of the pixel in the image. Then the images were resized to 224 X 224 X3 in jpg format. The cropping ensures that when processed by a CNN their is adequate information in the images to create a highly accurate classifier.
+
+All files were also numbered sequential starting from one for each species. So test images are named 1.jpg to 5.jpg. Similarly for validation images. Training images are also numbered sequentially with "zeros" padding. For example 001.jpg, 002.jpg ….010.jpg, 011.jpg …..099.jpg, 100jpg, 102.jpg etc. The zero's padding preserves the file order when used with python file functions and Keras flow from directory.
 
 # Model Architecture
-![](imgs/resnet50_architecture.jpg)
-A ResNet50 model was used as the model for this project. Because this model has been so successful in so many image classification competitions in the past and my best ResNet model score was good enough for me, I did not explore any other model architectures. The model weights were initially trained on the [ImageNet Dataset](https://en.wikipedia.org/wiki/ImageNet) and only the last two layers - including the new top - were fine tuned. This allowed me to train this model and iterate through hyperparameter combinations much more quickly than would have been possible otherwise. I also used my own implementation of [early stopping](https://en.wikipedia.org/wiki/Early_stopping) to prevent overfitting and decrease training time. Pytorch was my weapon of choice as a programming framework because of the ease of use and amount of model customization possible.
+A Convolutional Neural Network model was used as the model for this project. It consists of a convolutional layer, a maxpooling one, another convolutional and a fully connected one (Dense). As Dense layers can only receive 1D inputs, we use Flatten() to unroll the 3D activation volume of the 2nd convolutional layer to a 1D vector.
+
+- For activation function, 'softmax' and 'relu' were used.
+
+- For loss function, CategoricalCrossentropy() was used.
+
+- For optimizers Adam() optimizer was used.
+
+- The filter number in each layer has been incrementally increased, 64-> 128 -> 256.
 
 # Model Scores
 * Training accuracy, weighted recall, weighted precision, and weighted F1 scores were all .99
     * Validation scores were all .98
     * Holdout test scores were all .98
-* Among all training images, the model had the hardest time classifying the Barn Swallow
-    * Recall score of .78 and F1 score of .87
-    * Most frequently mistook the Barn Swallow for a Tree Swallow
-
-Here are examples of both a Barn Swallow and a Tree Swallow. Can you identify which is which?
-### Barn Swallow:
-![](imgs/barn_swallow.jpg)
-
-### Tree Swallow:
-![](imgs/tree_swallow.jpg)
 
 # Streamlit App
 
-I created a publically hosted application using Streamlit to showcase this project and allow users to interact with the trained model with a no-code implimentation. Users can select from any of the images I used for training, validation, and testing or they can upload their own image and see how the model would classify it.
+An interface where users can upload an image and get a prediction after the image is fed to the trained model is created using Streamlit. The website shows top five predictions together with the confidence levels of each prediction. Three other pictures of the species that has the highest confidence level and is the final prediction are also shown on the website.
 
-The app outputs a table of the top five predictions including confidence levels of each prediction and a link to the Wikipedia page of the bird species in case users want to learn more.
-![](imgs/st_app_shot.jpeg)
+![](imgs/images2.jpg)
+
 
 # Future direcitons
-I have several ideas to improve this project:
-* Add explanations for how the CNN works with multiple levels of explanation depending on user selection of dropbox
-* If predicted confidence is under some threshold, say something about not being sure about the prediction
-* Potentially have a stacked model where the first model predicts if the image is a bird or not - if not, do something funny to the user for trying to trick me
+* The accuracy score of the model could be increased
+* A detection algorithm could be implemented to detect if the uploaded picture belongs to a bird or not.
+* A message can be shown to the user stating that the prediction may not be true and what could be done to avoid it (make sure the resolution of the picture is high, make sure that the bird takes up at least 50% of the image etc.) if the prediction confidence level is very low for the top prediction.
