@@ -4,8 +4,7 @@ import joblib
 import os
 import sys
 
-sys.path.insert(0, 'C:/Users/sdoga/Desktop/Courses/Software-Engineering/Image_model2/src')
-from Project import predict_proba
+from src.Project import predict_proba
 
 def test_predict():
     model=joblib.load("models/trained_model.joblib")
