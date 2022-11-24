@@ -3,7 +3,7 @@ import os
 import json
 
 # assign directory
-directory = 'C:/Users/sdoga/Desktop/Courses/Software Engineering/Datasets/BIRDS450/images'
+directory = 'Datasets/BIRDS450/images'
 image_dict = dict()
 data_types = []
 index_dict = dict()
@@ -27,8 +27,8 @@ for type in data_types:
         mid_dict[bird_name] = lst
     image_dict[type] = mid_dict
 
-with open("C:/Users/sdoga/Desktop/all_image_files.json", "w") as outfile:
+with open("src/all_image_files.json", "w") as outfile:
     json.dump(image_dict, outfile)
 
-with open("C:/Users/sdoga/Desktop/index_to_class_label.json", "w") as outfile:
+with open("src/index_to_class_label.json", "w") as outfile:
     json.dump(index_dict, outfile)
