@@ -26,7 +26,3 @@ def image_reshaping(path):
   img = np.expand_dims(img, axis = 0)
   return img, img_file
 
-# Example - AFRICAN CROWNED CRANE - class 3
-image_path = '/content/drive/MyDrive/SE project/Data/Image Data/Birds images/test/AFRICAN CROWNED CRANE/1.jpg'
-img, img_file = image_reshaping(image_path)
-predict_birdImage(img, img_file)
