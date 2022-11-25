@@ -1,4 +1,4 @@
-import 
+from unittest_imageclassification import testImageExtension, testImageShape
 
 # Example correct case
 from PIL import Image
