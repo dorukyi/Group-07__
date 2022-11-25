@@ -1,4 +1,4 @@
-from import image_reshaping, predict_birdImage
+from prediction-integrationtestcase import image_reshaping, predict_birdImage
 
 # Example - AFRICAN CROWNED CRANE - class 3
 image_path = '1.jpg'
