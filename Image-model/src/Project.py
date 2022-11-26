@@ -134,11 +134,8 @@ def predict(
 
 
 if __name__ == '__main__':
-    # model = load_model()
     index_to_class_label_dict = load_index_to_label_dict()
     all_image_files = load_file_structure()
-    types_of_birds = sorted(list(all_image_files['test'].keys()))
-    types_of_birds = [bird.title() for bird in types_of_birds]
 
     st.title('Welcome To Software Engineering Project')
     instructions = """
@@ -154,7 +151,7 @@ if __name__ == '__main__':
     if file:  # if user uploaded file
         img = Image.open(file)
     else:
-        img = Image.open("Datasets/BIRDS450/images/train/AFRICAN OYSTER CATCHER/004.jpg")
+        img = Image.open("Datasets/BIRDS450/images/train/AFRICAN OYSTER CATCHER/003.jpg")
     prediction = predict(img, index_to_class_label_dict, k=5)
     top_prediction = prediction[0][0]
     available_images = all_image_files.get(
