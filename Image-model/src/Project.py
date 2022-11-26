@@ -1,19 +1,11 @@
-
 import json
 import PIL
 from PIL import Image
 import os
-
+import tensorflow as tf
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
-
-@st.cache(allow_output_mutation=True)
-def load_model():
-    model=joblib.load("models/trained_model.joblib")
-    return model
-
 
 @st.cache()
 def load_index_to_label_dict(
@@ -64,7 +56,7 @@ def predict_proba(
             img: PIL.Image,
             k: int,
             index_to_class_labels: dict,
-            model
+            path="models/model4.tflite"
             ):
         """
         Feeds single image through network and returns
@@ -85,7 +77,26 @@ def predict_proba(
             formatted predictions formatted to include a tuple of
             1. predicted label, 2. predicted probability as str
         """
-        probabilites = model.predict(np.asarray(img).reshape(1, 224, 224, 3))
+        # Load TFLite model and allocate tensors.
+        interpreter = tf.lite.Interpreter(model_path=path)
+        interpreter.allocate_tensors()
+        # Get input and output tensors.
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+        # Test model on random input data.
+        input_shape = input_details[0]['shape']
+        input_data = np.asarray(img).reshape(1, 224, 224, 3)
+        input_data = input_data.astype("float32")
+        interpreter.set_tensor(input_details[0]['index'], input_data)
+
+        interpreter.invoke()
+
+        # The function `get_tensor()` returns a copy of the tensor data.
+        # Use `tensor()` in order to get a pointer to the tensor.
+        probabilites = interpreter.get_tensor(output_details[0]['index'])
+
+        #probabilites = model.predict(np.asarray(img).reshape(1, 224, 224, 3))
         indices = sorted(range(len(probabilites[0])), key=lambda i: probabilites[0][i],reverse=True)[:k]
         probabilites = sorted(probabilites[0],reverse=True)[:k]
         formatted_predictions = []
@@ -102,7 +113,6 @@ def predict_proba(
 def predict(
         img: Image.Image,
         index_to_label_dict: dict,
-        model,
         k: int
         ) -> list:
     """Transforming input image according to ImageNet paper
@@ -119,12 +129,12 @@ def predict(
     converts that output tensor to probabilities using Softmax,
     and then extracts and formats the top k predictions."""
         
-    formatted_predictions = predict_proba(img, k, index_to_label_dict,model)
+    formatted_predictions = predict_proba(img, k, index_to_label_dict)
     return formatted_predictions
 
 
 if __name__ == '__main__':
-    model = load_model()
+    # model = load_model()
     index_to_class_label_dict = load_index_to_label_dict()
     all_image_files = load_file_structure()
     types_of_birds = sorted(list(all_image_files['test'].keys()))
@@ -145,7 +155,7 @@ if __name__ == '__main__':
         img = Image.open(file)
     else:
         img = Image.open("Datasets/BIRDS450/images/train/AFRICAN OYSTER CATCHER/004.jpg")
-    prediction = predict(img, index_to_class_label_dict, model, k=5)
+    prediction = predict(img, index_to_class_label_dict, k=5)
     top_prediction = prediction[0][0]
     available_images = all_image_files.get(
         'train').get(top_prediction.upper())
