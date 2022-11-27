@@ -6,9 +6,6 @@ import librosa.display
 from tqdm import tqdm
 import numpy as np
 from sklearn.model_selection import train_test_split
-import tensorflow as tf
-import tensorflow.keras.models as models
-import tensorflow.keras.layers as layers
 import IPython.display as ipd
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
@@ -75,8 +72,8 @@ def featurextraction(arg_train, arg_test, arg_validate):
       writer.writerow(header)
   insects = 'ManualTrain ManualValidation ManualTest'.split()
   for g in insects:
-      for filename in os.listdir(os.path.join("Dataset/Audio",g)):
-          songname = os.path.join("Dataset/Audio",g,filename)
+      for filename in os.listdir(os.path.join("Dataset",g)):
+          songname = os.path.join("Dataset",g,filename)
           y, sr = librosa.load(songname, mono=True, duration=30)
           rmse = librosa.feature.rms(y=y)[0]
           chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
