@@ -3,6 +3,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Flatten, Dropout, BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
 from keras import initializers
+import tensorflow as tf
+import tensorflow_model_optimization as tfmot
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 from PIL import Image
@@ -53,6 +55,24 @@ y_train = y_train.reshape(-1,1)
 y_train = keras.utils.to_categorical(y_train, 400)
 y_test = keras.utils.to_categorical(y_test, 400)
 
+prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
+
+# Compute end step to finish pruning after 10 epochs.
+batch_size = 100
+epochs = 10
+validation_split = 0.1 # 10% of training set will be used for validation set. 
+
+num_images = y_train.shape[0] * (1 - validation_split)
+end_step = np.ceil(num_images / batch_size).astype(np.int32) * epochs
+
+# Define model for pruning.
+pruning_params = {
+      'pruning_schedule': tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.50,
+                                                               final_sparsity=0.80,
+                                                               begin_step=0,
+                                                               end_step=end_step)
+}
+
 def define_Model():
 
     initializer = keras.initializers.GlorotNormal()
@@ -78,8 +98,10 @@ def define_Model():
     model.add(Dense(100, activation='relu', kernel_initializer=initializer))
     model.add(Dense(1, activation='softmax', kernel_initializer=initializer))
 
-    model.compile(loss=keras.losses.CategoricalCrossentropy(), optimizer=keras.optimizers.Adam(learning_rate=0.001), metrics=['accuracy'])
-    return model
+    model_for_pruning = prune_low_magnitude(model, **pruning_params)
+
+    model_for_pruning.compile(loss=keras.losses.CategoricalCrossentropy(), optimizer=keras.optimizers.Adam(learning_rate=0.001), metrics=['accuracy'])
+    return model_for_pruning
 
 model = define_Model()
 
@@ -91,9 +113,18 @@ batch_size = 100 #Number of samples in each batch hyperperameter. This parameter
 
 # x_train, y_train = augmentation(x_train, y_train)
 
-model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(x_test, y_test)) # fit() starts the backpropagation algorithm.
-print(x_test[0])
-print(y_test[0])
+callbacks = [
+  tfmot.sparsity.keras.UpdatePruningStep()]
 
-filename = "trained_model.joblib"
-joblib.dump(model, filename)
+model.fit(x_train, y_train, batch_size=batch_size,callbacks=callbacks,validation_split=validation_split, epochs=epochs, verbose=1, validation_data=(x_test, y_test)) # fit() starts the backpropagation algorithm.
+
+model_for_export = tfmot.sparsity.keras.strip_pruning(model)
+
+converter = tf.lite.TFLiteConverter.from_keras_model(model_for_export)
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+quantized_and_pruned_tflite_model = converter.convert()
+
+with open("models/model4.tflite", 'wb') as f:
+  f.write(quantized_and_pruned_tflite_model)
+
+
