@@ -86,7 +86,7 @@ if __name__ == '__main__':
         audio_file = preprocess("temp.wav")
         
     else:
-        path = "Dataset/ManualTrainClean/Chorthippusbrunneus120.wav"
+        path = "Chorthippusbrunneus120.wav"
         audio_file = preprocess(path)
         st.title("Here is the audio you've uploaded")
         st.audio(path)
