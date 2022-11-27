@@ -102,16 +102,16 @@ def loading_dataframe(dataframe_csv):
   df = pd.read_csv(dataframe_csv)
   return df
 
-# def set_label(row):
-#   """
-#   Setting labels for species. To binarize them later.
-#   """
-#   if (row["label"] == "Chorthippusbig") or (row["label"] == "Chorthippusbru") or (row["label"] == "Grylluscampest") or (row["label"] == "Nemobiussylves") or (row["label"] == "Oecanthuspellu") or (row["label"] == "Pholidopteragr") or  (row["label"] == "Pseudochorthip") or (row["label"] == "Roeselianaroes") or (row["label"] == "Tettigoniaviri"):
-#       return "Orthoptera"
-#   else:
-#       return "Cicadidae"
+def set_label(row):
+  """
+  Setting labels for species. To binarize them later.
+  """
+  if (row["label"] == "Chorthippusbig") or (row["label"] == "Chorthippusbru") or (row["label"] == "Grylluscampest") or (row["label"] == "Nemobiussylves") or (row["label"] == "Oecanthuspellu") or (row["label"] == "Pholidopteragr") or  (row["label"] == "Pseudochorthip") or (row["label"] == "Roeselianaroes") or (row["label"] == "Tettigoniaviri"):
+      return "Orthoptera"
+  else:
+      return "Cicadidae"
   
-#   return df
+  return df
 
 def preprocessing_data2(df):
   """
