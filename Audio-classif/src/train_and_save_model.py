@@ -70,7 +70,7 @@ def featurextraction(arg_train, arg_test, arg_validate):
   with file:
       writer = csv.writer(file)
       writer.writerow(header)
-  insects = 'ManualTrain ManualValidation ManualTest'.split()
+  insects = 'ManualTrainClean ManualValidationClean ManualTestClean'.split()
   for g in insects:
       for filename in os.listdir(os.path.join("Dataset",g)):
           songname = os.path.join("Dataset",g,filename)
