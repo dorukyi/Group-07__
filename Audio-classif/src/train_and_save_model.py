@@ -138,9 +138,9 @@ def svmSVC(X_train, X_test, y_train, y_test):
   print(clf.score(X_test, y_test))
   joblib.dump(clf, "models/trained_model")
 
-arg_train = 'Dataset/Audio/ManualTrain'
-arg_test = 'Dataset/Audio/ManualTest'
-arg_validate = 'Dataset/Audio/ManualValidation'
+arg_train = 'Dataset/ManualTrain'
+arg_test = 'Dataset/ManualTest'
+arg_validate = 'Dataset/ManualValidation'
 #arg_train, arg_test, arg_validate = preprocessing_data(path_train, path_test, path_validate)
 featurextraction(arg_train, arg_test, arg_validate)
 df = loading_dataframe("dataset.csv")
