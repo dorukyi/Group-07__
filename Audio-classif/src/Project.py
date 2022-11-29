@@ -77,7 +77,7 @@ if __name__ == '__main__':
     uploaded_file = st.file_uploader('Upload An Audio File', type='wav')
 
     if not uploaded_file:  # if user uploaded file
-        path = "Dataset/ManualTrainClean/Azanicadazuluensis230.wav"
+        path = "Chorthippusbiguttulus46.wav"
         audio_file = preprocess(path)
         st.title("Here is the audio you've uploaded")
         st.audio(path)
