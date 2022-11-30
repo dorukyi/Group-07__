@@ -46,7 +46,7 @@ def preprocess(file_path, label):
     return spectrogram, label
 
 
-source = r"C:\Users\laury\OneDrive\Stalinis kompiuteris\SE4CSAI\Data\My own\Audio detection\Audio files\warblrb10k_public_wav\wav"
+source = r"C:\Users\laury\OneDrive\Stalinis kompiuteris\SE4CSAI\Data\My own\Audio detection\Audio files\warblrb10k_public_wav\wav\0a4ef72d-611f-4adc-9cf1.wav"
 myreturn = preprocess(source, 1)
 print(myreturn[0].shape)
 
