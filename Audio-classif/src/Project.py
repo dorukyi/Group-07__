@@ -52,7 +52,6 @@ def preprocess(path):
     X = np.array(df).reshape(1,-1)
     return X
 
-
 @st.cache()
 def predict(
         audio_file,
@@ -63,13 +62,13 @@ def predict(
 
 
 if __name__ == '__main__':
-    model = joblib.load("models/trained_model")
+    model = joblib.load("models/trained_model.joblib")
     index_to_class_label_dict = load_index_to_label_dict()
 
     st.title('Welcome To Software Engineering Project')
     instructions = """
-        Upload your image.
-        The image you upload will be fed
+        Upload your audio.
+        The audio you upload will be fed
         through the Deep Neural Network in real-time
         and the output will be displayed to the screen.
         """
@@ -77,22 +76,24 @@ if __name__ == '__main__':
 
     uploaded_file = st.file_uploader('Upload An Audio File', type='wav')
 
-    if uploaded_file:  # if user uploaded file
+    if not uploaded_file:  # if user uploaded file
+        path = "Chorthippusbiguttulus46.wav"
+        audio_file = preprocess(path)
+        st.title("Here is the audio you've uploaded")
+        st.audio(path)
+        
+    else:
         audio_bytes = uploaded_file.read()
         st.title("Here is the audio you've uploaded")
         st.audio(audio_bytes)
         file_var = AudioSegment.from_wav(uploaded_file) 
         file_var.export("temp.wav", format='wav')
         audio_file = preprocess("temp.wav")
-        
-    else:
-        path = "Chorthippusbrunneus120.wav"
-        audio_file = preprocess(path)
-        st.title("Here is the audio you've uploaded")
-        st.audio(path)
+        os.remove("temp.wav")
+
 
     prediction = predict(audio_file, index_to_class_label_dict,model)
 
-    st.title("Here is the most likely bird species")
+    st.title("Here is the most likely insect species")
 
     st.write(prediction)

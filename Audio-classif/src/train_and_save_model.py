@@ -6,6 +6,7 @@ import librosa.display
 from tqdm import tqdm
 import numpy as np
 from sklearn.model_selection import train_test_split
+import tensorflow as tf
 import IPython.display as ipd
 from IPython.core.interactiveshell import InteractiveShell
 InteractiveShell.ast_node_interactivity = "all"
@@ -56,9 +57,6 @@ def featurextraction(arg_train, arg_test, arg_validate):
   """
   creates important features of aall the files, and puts them in a .csv
   """
-  path_train = 'ManualTrain/'
-  path_test = 'ManualTest/'
-  path_validate = 'ManualValidation/'
 
   header = 'filename chroma_stft rmse spectral_centroid spectral_bandwidth rolloff zero_crossing_rate'
   for i in range(1, 21):
@@ -99,29 +97,23 @@ def loading_dataframe(dataframe_csv):
   df = pd.read_csv(dataframe_csv)
   return df
 
-def set_label(row):
-  """
-  Setting labels for species. To binarize them later.
-  """
-  if (row["label"] == "Chorthippusbig") or (row["label"] == "Chorthippusbru") or (row["label"] == "Grylluscampest") or (row["label"] == "Nemobiussylves") or (row["label"] == "Oecanthuspellu") or (row["label"] == "Pholidopteragr") or  (row["label"] == "Pseudochorthip") or (row["label"] == "Roeselianaroes") or (row["label"] == "Tettigoniaviri"):
-      return "Orthoptera"
-  else:
-      return "Cicadidae"
-  
-  return df
-
 def preprocessing_data2(df):
   """
   Binarization labels. By dropping unneccesary columns and splitting the data in train and test sets.v
   """
-  #df = df.assign(order=df.apply(set_label, axis=1)) 
-  #df.drop(columns=['label'], axis = 1, inplace = True)
+  df["binary_label"] = "Cicadidae"
+  df.loc[(df["label"]=="Chorthippusbiguttulus") | (df["label"]=="Chorthippusbrunneus") | 
+  (df["label"]=="Grylluscampestris") | (df["label"]=="Nemobiussylvestris") | 
+  (df["label"]=="Oecanthuspellucens") | (df["label"]=="Pholidopteragriseoaptera") | 
+  (df["label"]=="Pseudochorthippusparallelus") | (df["label"]=="Roeselianaroeselii") | 
+  (df["label"]=="Tettigoniaviridissima"),"binary_label"] = "Orthoptera"
+  df.drop(['label'], axis = 1, inplace = True)
   df = df.drop(['filename'],axis=1)
-  genre_list = df.iloc[:, -1]
+  genre_list = df["binary_label"]
+  df = df.drop(["binary_label"],axis=1)
   encoder = LabelEncoder()
   y = encoder.fit_transform(genre_list)
-  scaler = StandardScaler()
-  X = scaler.fit_transform(np.array(df.iloc[:, :-1]))
+  X = np.array(df)
   X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
   return X_train, X_test, y_train, y_test
@@ -132,14 +124,15 @@ def svmSVC(X_train, X_test, y_train, y_test):
   """
   clf = svm.SVC()
   clf.fit(X_train, y_train)
-  print(clf.score(X_test, y_test))
-  joblib.dump(clf, "models/trained_model")
+  print(clf.score(X_test,y_test))
+  joblib.dump(clf, "models/trained_model.joblib")
 
-arg_train = 'Dataset/ManualTrain'
-arg_test = 'Dataset/ManualTest'
-arg_validate = 'Dataset/ManualValidation'
-#arg_train, arg_test, arg_validate = preprocessing_data(path_train, path_test, path_validate)
+arg_train = 'Dataset/ManualTrainClean'
+arg_test = 'Dataset/ManualTestClean'
+arg_validate = 'Dataset/ManualValidationClean'
+# arg_train, arg_test, arg_validate = preprocessing_data(path_train, path_test, path_validate)
 featurextraction(arg_train, arg_test, arg_validate)
+
 df = loading_dataframe("dataset.csv")
 
 X_train, X_test, y_train, y_test = preprocessing_data2(df)
